@@ -6,11 +6,5 @@ import java.util.List;
 
 public interface CustomerRepository {
 
-  void save(Connection conn, Customer c) throws SQLException;
-
-  Customer findById(Connection conn, int id) throws SQLException;
-
-  void updateCustomerAfterSale(Connection conn, Customer c) throws SQLException;
-
-  List<Customer> findAll();
+  void insert(Connection conn, Customer cus) throws SQLException;
 }
