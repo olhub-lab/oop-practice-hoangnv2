@@ -36,7 +36,7 @@ public class Customer {
     this.phoneNumber = phoneNumber;
     this.address = address;
     this.accountBalance = accountBalance;
-    this.level = LoyaltyLevel.REGULAR;
+    this.level = updateLoyaltyLevel();
     this.ownerVehicle = 0;
   }
 
@@ -60,6 +60,10 @@ public class Customer {
 
   public int getOwnerVehicle() {
     return ownerVehicle;
+  }
+
+  public void setOwnerVehicle(int ownerVehicle) {
+    this.ownerVehicle = ownerVehicle;
   }
 
   public BigDecimal getAccountBalance() {
@@ -86,6 +90,24 @@ public class Customer {
 
   public LoyaltyLevel getLoyaltyLevel() {
     return level;
+  }
+
+  public void setLoyaltyLevel(LoyaltyLevel level) {
+    this.level = level;
+  }
+
+
+  public LoyaltyLevel updateLoyaltyLevel() {
+    if (ownerVehicle < MIN_VEHICLE_SILVER) {
+      return LoyaltyLevel.REGULAR;
+    }
+    if (ownerVehicle < MAX_VEHICLE_SILVER &&  ownerVehicle >= MIN_VEHICLE_SILVER) {
+      return LoyaltyLevel.SILVER;
+    }
+    if (ownerVehicle < MAX_VEHICLE_GOLD && ownerVehicle >= MIN_VEHICLE_GOLD) {
+      return LoyaltyLevel.GOLD;
+    }
+    return  LoyaltyLevel.PLATINUM;
   }
 
 }
