@@ -6,11 +6,11 @@ import java.util.Map;
 
 public interface CustomerRepository { ;
 
-  void insert(Customer cus) throws SQLException;
+  void insert(Customer cus);
 
-  void updateCustomerSelective(int id, Map<String, Object> fieldToUpdate) throws SQLException;
+  void updateCustomerSelective(int id, Map<String, Object> fieldToUpdate);
 
-  Customer getCustomerById(int id) throws SQLException;
+  Customer getCustomerById(int id);
 
 
 }

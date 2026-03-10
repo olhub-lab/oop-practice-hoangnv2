@@ -3,8 +3,7 @@ package firsttaskoop.repository.impl;
 import firsttaskoop.model.Customer;
 import firsttaskoop.repository.CustomerRepository;
 import firsttaskoop.repository.DBConnector;
-import firsttaskoop.repository.DBUtils;
-import java.math.BigDecimal;
+import firsttaskoop.repository.query.CustomerQueries;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,53 +14,53 @@ import java.util.Map;
 
 
 public class CustomerRepoImpl implements CustomerRepository {
-  private static final String INSERT_SQL = "INSERT INTO customer (name, phone_number, account_balance, loyalty_level, address, owner_vehicle) VALUES(?, ?, ?, ?, ?, ?)";
-  private static final String SELECT_SQL = "SELECT * FROM customer WHERE id = ?";
 
   @Override
-  public void insert(Customer cus) throws SQLException {
+  public void insert(Customer cus) {
+    try (Connection conn = DBConnector.getInstance().getConnection()) {
+      try {
+        conn.setAutoCommit(false);
 
-    Connection conn = null;
+        try (PreparedStatement ps = conn.prepareStatement(CustomerQueries.INSERT_SQL)) {
+          Object[] values = {
+              cus.getName(),
+              cus.getPhoneNumber(),
+              cus.getAccountBalance(),
+              cus.getLoyaltyLevel().name(),
+              cus.getAddress(),
+              cus.getOwnerVehicle()
+          };
 
-    try {
-      conn = DBConnector.getInstance().getConnection();
-      conn.setAutoCommit(false);
+          for (int i = 0; i < values.length; i++) {
+            ps.setObject(i + 1, values[i]);
+          }
 
-      try (PreparedStatement ps = conn.prepareStatement(INSERT_SQL)) {
-        ps.setString(1, cus.getName());
-        ps.setString(2, cus.getPhoneNumber());
-        ps.setBigDecimal(3, cus.getAccountBalance());
-        ps.setString(4, cus.getLoyaltyLevel().name());
-        ps.setString(5, cus.getAddress());
-        ps.setInt(6, cus.getOwnerVehicle());
-
-        ps.executeUpdate();
-        conn.commit();
-        System.out.println("Đã lưu dữ liệu người dùng " + cus.getName() + " vào database!!");
+          ps.executeUpdate();
+          conn.commit();
+        }
       } catch (SQLException e) {
-        DBUtils.rollback(conn);
-        throw e;
+        if (conn != null) {
+          conn.rollback();
+        }
+        throw new RuntimeException("Lỗi database khi thêm khách hàng: " + e.getMessage(), e);
       }
-    } finally {
-      DBUtils.close(conn);
+    } catch (SQLException e) {
+      throw new RuntimeException("Lỗi kết nối hệ thống!", e);
     }
   }
 
   @Override
-  public void updateCustomerSelective(int id, Map<String, Object> fieldsToUpdate)
-      throws SQLException {
+  public void updateCustomerSelective(int id, Map<String, Object> fieldsToUpdate) {
     if (fieldsToUpdate == null || fieldsToUpdate.isEmpty()) {
       return;
     }
 
     StringBuilder sql = new StringBuilder("UPDATE customer SET ");
     List<Object> values = new ArrayList<>();
-
     fieldsToUpdate.forEach((column, value) -> {
       sql.append(column).append(" = ?, ");
       values.add(value);
     });
-
     sql.setLength(sql.length() - 2);
     sql.append(" WHERE id = ?");
     values.add(id);
@@ -74,29 +73,29 @@ public class CustomerRepoImpl implements CustomerRepository {
       }
 
       ps.executeUpdate();
+    } catch (SQLException e) {
+      throw new RuntimeException("Lỗi cập nhật thông tin khách hàng!", e);
     }
   }
 
   @Override
-  public Customer getCustomerById(int id) throws SQLException {
-
-    try (Connection conn = DBConnector.getInstance().getConnection();) {
-      PreparedStatement ps = conn.prepareStatement(SELECT_SQL);
+  public Customer getCustomerById(int id) {
+    try (Connection conn = DBConnector.getInstance().getConnection();
+        PreparedStatement ps = conn.prepareStatement(CustomerQueries.SELECT_SQL)) {
 
       ps.setInt(1, id);
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) {
-          String name = rs.getString("name");
-          String phoneNumber = rs.getString("phone_number");
-          BigDecimal balance = rs.getBigDecimal("account_balance");
-          String address = rs.getString("address");
-
-          Customer cus = new Customer(name, phoneNumber, address, balance);
-          return cus;
+          return new Customer(
+              rs.getString("name"),
+              rs.getString("phone_number"),
+              rs.getString("address"),
+              rs.getBigDecimal("account_balance")
+          );
         }
       }
     } catch (SQLException e) {
-      e.printStackTrace();
+      throw new RuntimeException("Lỗi khi truy vấn khách hàng id: " + id, e);
     }
     return null;
   }
