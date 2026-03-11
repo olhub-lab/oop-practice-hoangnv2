@@ -1,5 +1,6 @@
 package firsttaskoop.repository.impl;
 
+import firsttaskoop.constant.CustomerConstants;
 import firsttaskoop.model.Customer;
 import firsttaskoop.repository.CustomerRepository;
 import firsttaskoop.repository.DBConnector;
@@ -22,18 +23,14 @@ public class CustomerRepoImpl implements CustomerRepository {
         conn.setAutoCommit(false);
 
         try (PreparedStatement ps = conn.prepareStatement(CustomerQueries.INSERT_SQL)) {
-          Object[] values = {
-              cus.getName(),
-              cus.getPhoneNumber(),
-              cus.getAccountBalance(),
-              cus.getLoyaltyLevel().name(),
-              cus.getAddress(),
-              cus.getOwnerVehicle()
-          };
+          int index = 1;
 
-          for (int i = 0; i < values.length; i++) {
-            ps.setObject(i + 1, values[i]);
-          }
+          ps.setString(index++, cus.getName());
+          ps.setString(index++, cus.getPhoneNumber());
+          ps.setBigDecimal(index++, cus.getAccountBalance());
+          ps.setString(index++, cus.getLoyaltyLevel().name());
+          ps.setString(index++, cus.getAddress());
+          ps.setInt(index++, cus.getOwnerVehicle());
 
           ps.executeUpdate();
           conn.commit();
@@ -87,10 +84,10 @@ public class CustomerRepoImpl implements CustomerRepository {
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) {
           return new Customer(
-              rs.getString("name"),
-              rs.getString("phone_number"),
-              rs.getString("address"),
-              rs.getBigDecimal("account_balance")
+              rs.getString(CustomerConstants.COL_NAME),
+              rs.getString(CustomerConstants.COL_PHONE),
+              rs.getString(CustomerConstants.COL_ADDRESS),
+              rs.getBigDecimal(CustomerConstants.COL_BALANCE)
           );
         }
       }

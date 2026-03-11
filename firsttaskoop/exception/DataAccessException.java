@@ -5,5 +5,8 @@ public class DataAccessException extends BaseException {
     super(message, cause);
   }
 
+  public DataAccessException(String message) {
+    super(message);
+  }
 
 }
