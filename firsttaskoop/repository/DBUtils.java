@@ -1,5 +1,6 @@
 package firsttaskoop.repository;
 
+import firsttaskoop.exception.DataAccessException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -9,9 +10,8 @@ public class DBUtils {
     if (conn != null) {
       try {
         conn.rollback();
-        System.err.println("Dữ liệu đã được khôi phục (Rollback) do có lỗi!");
       } catch (SQLException e) {
-        e.printStackTrace();
+        throw new DataAccessException("Lỗi rồi, đã rollback: " + e.getMessage());
       }
     }
   }

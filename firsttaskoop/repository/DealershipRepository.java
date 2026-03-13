@@ -7,6 +7,8 @@ public interface DealershipRepository {
 
   List<Dealership> findAll();
 
-  void save(Dealership dealer);
+  void insert(Dealership dealer);
+
+  void update(Dealership dealer);
 
 }

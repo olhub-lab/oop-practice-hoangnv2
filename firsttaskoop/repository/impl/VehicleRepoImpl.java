@@ -1,5 +1,6 @@
 package firsttaskoop.repository.impl;
 
+import firsttaskoop.constant.CommonConstants;
 import firsttaskoop.constant.VehicleConstants;
 import firsttaskoop.enums.Origin;
 import firsttaskoop.exception.DataAccessException;
@@ -47,16 +48,16 @@ public class VehicleRepoImpl implements VehicleRepository {
   private int insertBaseVehicle(Connection connection, Vehicle vehicle) {
     try (PreparedStatement ps = connection.prepareStatement(VehicleQueries.INSERT_VEHICLE,
         Statement.RETURN_GENERATED_KEYS)) {
-      int i = 1;
+      int index = CommonConstants.INDEX;
 
-      ps.setString(i++, vehicle.getNameModel());
-      ps.setString(i++, vehicle.getManufacturer());
-      ps.setInt(i++, vehicle.getBirthYear());
-      ps.setBigDecimal(i++, vehicle.getBasePrice());
-      ps.setBigDecimal(i++, vehicle.getImportTax());
-      ps.setInt(i++, vehicle.getQuantity());
-      ps.setString(i++, vehicle.getOrigin().name());
-      ps.setString(i++, vehicle.getVehicleType().name());
+      ps.setString(++index, vehicle.getNameModel());
+      ps.setString(++index, vehicle.getManufacturer());
+      ps.setInt(++index, vehicle.getBirthYear());
+      ps.setBigDecimal(++index, vehicle.getBasePrice());
+      ps.setBigDecimal(++index, vehicle.getImportTax());
+      ps.setInt(++index, vehicle.getQuantity());
+      ps.setString(++index, vehicle.getOrigin().name());
+      ps.setString(++index, vehicle.getVehicleType().name());
 
       ps.executeUpdate();
 
@@ -86,11 +87,11 @@ public class VehicleRepoImpl implements VehicleRepository {
   private void insertBike(Connection conn, int id, Bike v) {
 
     try (PreparedStatement ps = conn.prepareStatement(VehicleQueries.INSERT_BIKE)) {
-      int i = 1;
+      int index = CommonConstants.INDEX;
 
-      ps.setInt(i++, id);
-      ps.setString(i++, v.getBikeType());
-      ps.setString(i++, v.getFrameMaterial());
+      ps.setInt(++index, id);
+      ps.setString(++index, v.getBikeType());
+      ps.setString(++index, v.getFrameMaterial());
 
       ps.executeUpdate();
     } catch (SQLException e) {
@@ -102,12 +103,12 @@ public class VehicleRepoImpl implements VehicleRepository {
   private void insertMotorBike(Connection conn, int id, MotorBike v) {
 
     try (PreparedStatement ps = conn.prepareStatement(VehicleQueries.INSERT_MOTORBIKE)) {
-      int i = 1;
+      int index = CommonConstants.INDEX;
 
-      ps.setInt(i++, id);
-      ps.setInt(i++, v.getCapacity());
-      ps.setInt(i++, v.getPower());
-      ps.setString(i++, v.getTypeOfMotorBike());
+      ps.setInt(++index, id);
+      ps.setInt(++index, v.getCapacity());
+      ps.setInt(++index, v.getPower());
+      ps.setString(++index, v.getTypeOfMotorBike());
     } catch (SQLException e) {
       throw new DataAccessException(
           "Lỗi khi thêm thông tin Car (ID: " + id + "): " + e.getMessage(), e);
@@ -116,13 +117,13 @@ public class VehicleRepoImpl implements VehicleRepository {
 
   private void insertCar(Connection conn, int id, Car v) {
     try (PreparedStatement ps = conn.prepareStatement(VehicleQueries.INSERT_CAR)) {
-      int i = 1;
+      int index = CommonConstants.INDEX;
 
-      ps.setInt(i++, id);
-      ps.setInt(i++, v.getSeatNumber());
-      ps.setInt(i++, v.getCapacity());
-      ps.setString(i++, v.getBodyType());
-      ps.setString(i++, v.getFuelType());
+      ps.setInt(++index, id);
+      ps.setInt(++index, v.getSeatNumber());
+      ps.setInt(++index, v.getCapacity());
+      ps.setString(++index, v.getBodyType());
+      ps.setString(++index, v.getFuelType());
 
       ps.executeUpdate();
 
@@ -227,15 +228,15 @@ public class VehicleRepoImpl implements VehicleRepository {
 
   private void updateBaseVehicle(Connection conn, Vehicle v) throws SQLException {
     try (PreparedStatement ps = conn.prepareStatement(VehicleQueries.UPDATE_VEHICLE)) {
-      int i = 1;
-      ps.setString(i++, v.getNameModel());
-      ps.setString(i++, v.getManufacturer());
-      ps.setInt(i++, v.getBirthYear());
-      ps.setBigDecimal(i++, v.getOriginalPrice());
-      ps.setBigDecimal(i++, v.getImportTax());
-      ps.setInt(i++, v.getQuantity());
-      ps.setString(i++, v.getOrigin().name());
-      ps.setInt(i++, v.getId());
+      int index = CommonConstants.INDEX;
+      ps.setString(++index, v.getNameModel());
+      ps.setString(++index, v.getManufacturer());
+      ps.setInt(++index, v.getBirthYear());
+      ps.setBigDecimal(++index, v.getOriginalPrice());
+      ps.setBigDecimal(++index, v.getImportTax());
+      ps.setInt(++index, v.getQuantity());
+      ps.setString(++index, v.getOrigin().name());
+      ps.setInt(++index, v.getId());
 
       ps.executeUpdate();
     }
@@ -253,11 +254,11 @@ public class VehicleRepoImpl implements VehicleRepository {
 
   private void updateBike(Connection conn, Bike bike) throws SQLException {
     try (PreparedStatement ps = conn.prepareStatement(VehicleQueries.UPDATE_BIKE)) {
-      int i = 1;
-      ps.setString(i++, bike.getBikeType());
-      ps.setString(i++, bike.getFrameMaterial());
+      int index = CommonConstants.INDEX;
+      ps.setString(++index, bike.getBikeType());
+      ps.setString(++index, bike.getFrameMaterial());
 
-      ps.setInt(i++, bike.getId());
+      ps.setInt(++index, bike.getId());
 
       ps.executeUpdate();
     }
@@ -265,12 +266,12 @@ public class VehicleRepoImpl implements VehicleRepository {
 
   private void updateMotorBike(Connection conn, MotorBike mb) throws SQLException {
     try (PreparedStatement ps = conn.prepareStatement(VehicleQueries.UPDATE_MOTORBIKE)) {
-      int i = 1;
-      ps.setInt(i++, mb.getCapacity());
-      ps.setInt(i++, mb.getPower());
-      ps.setString(i++, mb.getTypeOfMotorBike());
+      int index = CommonConstants.INDEX;
+      ps.setInt(++index, mb.getCapacity());
+      ps.setInt(++index, mb.getPower());
+      ps.setString(++index, mb.getTypeOfMotorBike());
 
-      ps.setInt(i++, mb.getId());
+      ps.setInt(++index, mb.getId());
 
       ps.executeUpdate();
     }
@@ -278,12 +279,12 @@ public class VehicleRepoImpl implements VehicleRepository {
 
   private void updateCar(Connection conn, Car car) throws SQLException {
     try (PreparedStatement ps = conn.prepareStatement(VehicleQueries.UPDATE_CAR)) {
-      int i = 1;
-      ps.setInt(i++, car.getSeatNumber());
-      ps.setInt(i++, car.getCapacity());
-      ps.setString(i++, car.getBodyType());
-      ps.setString(i++, car.getFuelType());
-      ps.setInt(i++, car.getId());
+      int index = CommonConstants.INDEX;
+      ps.setInt(++index, car.getSeatNumber());
+      ps.setInt(++index, car.getCapacity());
+      ps.setString(++index, car.getBodyType());
+      ps.setString(++index, car.getFuelType());
+      ps.setInt(++index, car.getId());
 
       ps.executeUpdate();
     }

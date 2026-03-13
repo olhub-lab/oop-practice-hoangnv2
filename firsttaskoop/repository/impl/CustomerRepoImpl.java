@@ -1,5 +1,6 @@
 package firsttaskoop.repository.impl;
 
+import firsttaskoop.constant.CommonConstants;
 import firsttaskoop.constant.CustomerConstants;
 import firsttaskoop.model.Customer;
 import firsttaskoop.repository.CustomerRepository;
@@ -23,14 +24,14 @@ public class CustomerRepoImpl implements CustomerRepository {
         conn.setAutoCommit(false);
 
         try (PreparedStatement ps = conn.prepareStatement(CustomerQueries.INSERT_SQL)) {
-          int index = 1;
+          int index = CommonConstants.INDEX;
 
-          ps.setString(index++, cus.getName());
-          ps.setString(index++, cus.getPhoneNumber());
-          ps.setBigDecimal(index++, cus.getAccountBalance());
-          ps.setString(index++, cus.getLoyaltyLevel().name());
-          ps.setString(index++, cus.getAddress());
-          ps.setInt(index++, cus.getOwnerVehicle());
+          ps.setString(++index, cus.getName());
+          ps.setString(++index, cus.getPhoneNumber());
+          ps.setBigDecimal(++index, cus.getAccountBalance());
+          ps.setString(++index, cus.getLoyaltyLevel().name());
+          ps.setString(++index, cus.getAddress());
+          ps.setInt(++index, cus.getOwnerVehicle());
 
           ps.executeUpdate();
           conn.commit();
