@@ -22,7 +22,7 @@ public class DBUtils {
         conn.setAutoCommit(true);
         conn.close();
       } catch (SQLException e) {
-        e.printStackTrace();
+        throw new DataAccessException("Lỗi rồi ko đóng đươc :(( " + e.getMessage());
       }
     }
   }

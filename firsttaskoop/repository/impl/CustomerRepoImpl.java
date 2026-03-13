@@ -2,9 +2,11 @@ package firsttaskoop.repository.impl;
 
 import firsttaskoop.constant.CommonConstants;
 import firsttaskoop.constant.CustomerConstants;
+import firsttaskoop.exception.DataAccessException;
 import firsttaskoop.model.Customer;
 import firsttaskoop.repository.CustomerRepository;
 import firsttaskoop.repository.DBConnector;
+import firsttaskoop.repository.DBUtils;
 import firsttaskoop.repository.query.CustomerQueries;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,31 +21,27 @@ public class CustomerRepoImpl implements CustomerRepository {
 
   @Override
   public void insert(Customer cus) {
-    try (Connection conn = DBConnector.getInstance().getConnection()) {
-      try {
-        conn.setAutoCommit(false);
+    Connection conn = null;
+    try {
+      PreparedStatement ps = conn.prepareStatement(CustomerQueries.INSERT_SQL);
+      conn.setAutoCommit(false);
 
-        try (PreparedStatement ps = conn.prepareStatement(CustomerQueries.INSERT_SQL)) {
-          int index = CommonConstants.INDEX;
+      int index = CommonConstants.INDEX;
 
-          ps.setString(++index, cus.getName());
-          ps.setString(++index, cus.getPhoneNumber());
-          ps.setBigDecimal(++index, cus.getAccountBalance());
-          ps.setString(++index, cus.getLoyaltyLevel().name());
-          ps.setString(++index, cus.getAddress());
-          ps.setInt(++index, cus.getOwnerVehicle());
+      ps.setString(++index, cus.getName());
+      ps.setString(++index, cus.getPhoneNumber());
+      ps.setBigDecimal(++index, cus.getAccountBalance());
+      ps.setString(++index, cus.getLoyaltyLevel().name());
+      ps.setString(++index, cus.getAddress());
+      ps.setInt(++index, cus.getOwnerVehicle());
 
-          ps.executeUpdate();
-          conn.commit();
-        }
-      } catch (SQLException e) {
-        if (conn != null) {
-          conn.rollback();
-        }
-        throw new RuntimeException("Lỗi database khi thêm khách hàng: " + e.getMessage(), e);
-      }
+      ps.executeUpdate();
+      conn.commit();
+
     } catch (SQLException e) {
-      throw new RuntimeException("Lỗi kết nối hệ thống!", e);
+      DBUtils.rollback(conn);
+    } finally {
+      DBUtils.close(conn);
     }
   }
 
@@ -62,9 +60,11 @@ public class CustomerRepoImpl implements CustomerRepository {
     sql.setLength(sql.length() - 2);
     sql.append(" WHERE id = ?");
     values.add(id);
+    Connection conn = null;
 
-    try (Connection conn = DBConnector.getInstance().getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+    try {
+      conn = DBConnector.getInstance().getConnection();
+      PreparedStatement ps = conn.prepareStatement(sql.toString());
 
       for (int i = 0; i < values.size(); i++) {
         ps.setObject(i + 1, values.get(i));
@@ -72,7 +72,9 @@ public class CustomerRepoImpl implements CustomerRepository {
 
       ps.executeUpdate();
     } catch (SQLException e) {
-      throw new RuntimeException("Lỗi cập nhật thông tin khách hàng!", e);
+      DBUtils.rollback(conn);
+    } finally {
+      DBUtils.close(conn);
     }
   }
 

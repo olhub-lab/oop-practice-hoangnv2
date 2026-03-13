@@ -25,22 +25,21 @@ public class VehicleRepoImpl implements VehicleRepository {
 
   @Override
   public void insert(Vehicle vehicle) {
-    try (Connection conn = DBConnector.getInstance().getConnection()) {
-      try {
-        conn.setAutoCommit(false);
+    Connection conn = null;
+    try {
+      conn = DBConnector.getInstance().getConnection();
+      conn.setAutoCommit(false);
+      int generateId = insertBaseVehicle(conn, vehicle);
 
-        int generateId = insertBaseVehicle(conn, vehicle);
+      insertSubtypeData(conn, generateId, vehicle);
 
-        insertSubtypeData(conn, generateId, vehicle);
+      conn.commit();
+      System.out.println("Thêm xe thành công !!!");
 
-        conn.commit();
-        System.out.println("Thêm xe thành công !!!");
-
-      } catch (SQLException e) {
-        DBUtils.rollback(conn);
-      }
     } catch (SQLException e) {
-      throw new DataAccessException("Lỗi khi thêm xe vào cơ sở dữ liệu: " + e.getMessage(), e);
+      DBUtils.rollback(conn);
+    } finally {
+      DBUtils.close(conn);
     }
   }
 
@@ -177,7 +176,7 @@ public class VehicleRepoImpl implements VehicleRepository {
       String fuelType = rs.getString(VehicleConstants.COL_FUELTYPE);
 
       vehicle = new Car(nameModel, manufacturer, birthYear, originalPrice,
-          origin,importTaxRate, quantity,
+          origin, importTaxRate, quantity,
           seatNumber, fuelType, carCapacity, bodyType);
 
     } else if ("MOTORBIKE".equalsIgnoreCase(typeStr)) {
@@ -219,10 +218,9 @@ public class VehicleRepoImpl implements VehicleRepository {
       conn.commit();
       System.out.println("Cập nhật xe ID " + vehicle.getId() + " thành công!");
     } catch (SQLException e) {
-      if (conn != null) {
-        try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-      }
-      throw new DataAccessException("Lỗi khi cập nhật xe: " + e.getMessage(), e);
+      DBUtils.rollback(conn);
+    } finally {
+      DBUtils.close(conn);
     }
   }
 

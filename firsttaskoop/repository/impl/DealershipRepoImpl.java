@@ -21,16 +21,16 @@ public class DealershipRepoImpl implements DealershipRepository {
   public List<Dealership> findAll() {
     List<Dealership> list = new ArrayList<>();
 
-    try (Connection connection = DBConnector.getInstance().getConnection()) {
-      PreparedStatement ps = connection.prepareStatement(DealershipQueries.READ_SQL);
-      ResultSet rs = ps.executeQuery();
+    try (Connection connection = DBConnector.getInstance().getConnection();
+        PreparedStatement ps = connection.prepareStatement(DealershipQueries.READ_SQL);
+        ResultSet rs = ps.executeQuery()) {
 
       while (rs.next()) {
         list.add(mapRowToDealership(rs));
       }
 
     } catch (SQLException e) {
-      throw new DataAccessException("Lỗi không thể tìm thấy dữ liệu dealer: " + e.getMessage());
+      throw new DataAccessException("Lỗi truy vấn Dealership: " + e.getMessage(), e);
     }
     return list;
   }
@@ -45,18 +45,25 @@ public class DealershipRepoImpl implements DealershipRepository {
 
   @Override
   public void insert(Dealership dealer) {
-    try (Connection connection = DBConnector.getInstance().getConnection()) {
+    Connection connection = null;
+
+    try {
+      connection = DBConnector.getInstance().getConnection();
       PreparedStatement ps = connection.prepareStatement(DealershipQueries.INSERT_SQL);
       int index = CommonConstants.INDEX;
       ps.setString(++index, dealer.getName());
 
       ps.executeUpdate();
 
+      connection.commit();
     } catch (SQLException e) {
-      throw new DataAccessException("Lỗi thêm đại lý: " +e.getMessage());
+      DBUtils.rollback(connection);
+    } finally {
+      DBUtils.close(connection);
     }
   }
 
+  @Override
   public void update(Dealership dealer) {
     Connection conn = null;
     try {
@@ -68,6 +75,8 @@ public class DealershipRepoImpl implements DealershipRepository {
       conn.commit();
     } catch (SQLException e) {
       DBUtils.rollback(conn);
+    } finally {
+      DBUtils.close(conn);
     }
   }
 
@@ -79,7 +88,7 @@ public class DealershipRepoImpl implements DealershipRepository {
       ps.setInt(++index, dealer.getId());
 
       ps.executeUpdate();
-    }  catch (SQLException e) {
+    } catch (SQLException e) {
       throw new DataAccessException("Lỗi cập nhập dealer: " + e.getMessage());
     }
   }
