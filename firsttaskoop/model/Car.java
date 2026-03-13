@@ -1,44 +1,67 @@
 package firsttaskoop.model;
 
-import java.math.BigDecimal;
 import firsttaskoop.enums.Origin;
+import firsttaskoop.enums.VehicleType;
+import java.math.BigDecimal;
 
 public class Car extends Vehicle {
 
-  private static final BigDecimal CAR_IMPORT_TAX = new BigDecimal("0.5");
-  private static final int CAR_CAPACITY = 3000;
-  private static final BigDecimal LOW_CAPACITY_TAX = new BigDecimal("0.5");
-  private static final BigDecimal HIGH_CAPACITY_TAX = new BigDecimal("1");
   private int seatNumber;
-  private String typeOfField;
-  private int capacity;
+  private String fuelType;
+  private int carCapacity;
   private String bodyType;
 
-  public Car(String nameModel,
-      String manufacturer,
-      int birthYear,
-      BigDecimal originalPrice,
-      Origin origin,
-      int seatNumber,
-      String typeOfField,
-      int capacity,
-      String bodyType,
-      int quantity) {
-    super(nameModel, manufacturer, birthYear, originalPrice, origin, CAR_IMPORT_TAX, quantity);
+  public Car(String name, String manu, int year, BigDecimal price, Origin origin,
+      BigDecimal importTaxRate, int qty, int seats, String fuel, int cap, String body) {
+
+    super(name, manu, year, price, origin, importTaxRate, qty);
+
+    this.seatNumber = seats;
+    this.fuelType = fuel;
+    this.carCapacity = cap;
+    this.bodyType = body;
+  }
+
+  public int getSeatNumber() {
+    return seatNumber;
+  }
+
+  public void setSeatNumber(int seatNumber) {
     this.seatNumber = seatNumber;
-    this.typeOfField = typeOfField;
-    this.capacity = capacity;
+  }
+
+  public String getFuelType() {
+    return fuelType;
+  }
+
+  public void setFuelType(String fuelType) {
+    this.fuelType = fuelType;
+  }
+
+  public int getCapacity() {
+    return carCapacity;
+  }
+
+  public void setCapacity(int carCapacity) {
+    this.carCapacity = Car.this.carCapacity;
+  }
+
+  public String getBodyType() {
+    return bodyType;
+  }
+
+  public void setBodyType(String bodyType) {
     this.bodyType = bodyType;
   }
+
   @Override
   public BigDecimal getExciseTax() {
-    BigDecimal basePrice = originalPrice.add(super.getImportTax());
-    if (capacity < CAR_CAPACITY) {
-
-      return basePrice.multiply(LOW_CAPACITY_TAX);
-    }
-
-    return basePrice.multiply(HIGH_CAPACITY_TAX);
+    BigDecimal base = originalPrice.add(getImportTax());
+    return carCapacity < 3000 ? base.multiply(new BigDecimal("0.5")) : base.multiply(BigDecimal.ONE);
   }
 
+  @Override
+  public VehicleType getVehicleType() {
+    return VehicleType.CAR;
+  }
 }
